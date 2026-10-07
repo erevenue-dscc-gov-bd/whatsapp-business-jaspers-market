@@ -55,14 +55,18 @@ app.post('/webhook', (req, res) => {
           if (value.statuses) {
             value.statuses.forEach(status => {
               // Handle message status updates
-              Conversation.handleStatus(senderPhoneNumberId, status);
+              Conversation.handleStatus(senderPhoneNumberId, status).catch(error => {
+                console.error('Failed to handle status update:', error.message);
+              });
             });
           }
 
           if (value.messages) {
             value.messages.forEach(rawMessage => {
               // Respond to message
-              Conversation.handleMessage(senderPhoneNumberId, rawMessage);
+              Conversation.handleMessage(senderPhoneNumberId, rawMessage).catch(error => {
+                console.error('Failed to handle inbound message:', error.message);
+              });
             });
           }
         }

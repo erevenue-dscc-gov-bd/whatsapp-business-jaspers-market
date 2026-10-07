@@ -122,13 +122,12 @@ module.exports = class Conversation {
         await markMessageForFollowUp(ltoResponse.messages[0].id);
         break;
       default:
-        sendTryOutDemoMessage(
+        return sendTryOutDemoMessage(
           message.id,
           senderPhoneNumberId,
           message.senderPhoneNumber,
           constants.APP_DEFAULT_MESSAGE
         );
-        break;
     }
   }
 
