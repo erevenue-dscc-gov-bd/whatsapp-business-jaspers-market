@@ -154,6 +154,45 @@ Edit the `.env` file to add all saved credentials and the four media IDs returne
 node app.js
 ```
 
+#### 7a. Helper scripts (tunnel, webhook subscription, preflight)
+
+Three npm scripts remove most of the manual Graph API calls:
+
+```bash
+npm run tunnel                 # expose port 8080, ngrok style, and save WEBHOOK_CALLBACK_URL
+npm run webhook -- subscribe   # register that URL as the WABA callback (override_callback_uri)
+npm run doctor                 # verify config, Redis, token, subscription, and handshake
+```
+
+`npm run tunnel` picks the first available method:
+
+| Mode | Command | Notes |
+| --- | --- | --- |
+| ngrok | `npm run tunnel -- --ngrok` | Requires the `ngrok` binary; reads the URL from the local agent API. |
+| cloudflared | `npm run tunnel -- --cloudflared` | Quick tunnel; free, no account. |
+| existing URL | `npm run tunnel -- --url https://your-host` | Use a host or load balancer you already run. |
+| sandbox preview | `npm run tunnel -- --preview` | Uses this environment's public preview URL (reads `E2B_SANDBOX_ID`). |
+
+`npm run tunnel` with no flags tries ngrok, then cloudflared, then the sandbox preview.
+Add `--print` to see the URL without writing `.env`.
+
+Other helpers:
+
+```bash
+npm run webhook -- status       # list apps subscribed to the WABA
+npm run webhook -- phones       # list phone number ids (needed for media uploads)
+npm run webhook -- unsubscribe  # remove the subscription
+npm run media -- --file public/groceries.jpg --set GROCERIES_MEDIA_ID
+```
+
+`npm run media` uploads an asset you own to the Cloud API media endpoint for
+`PHONE_NUMBER_ID` and writes the returned ID to `.env`. Repeat it for all four
+media variables; IDs expire after 30 days.
+
+`npm run doctor` never prints secrets (only masked forms), exits non-zero on
+failures, and reports the local handshake separately from the public URL, so a
+`VERIFY_TOKEN` mismatch is distinguishable from a tunnel that is down.
+
 #### 8. Configure your webhook subscription
 
 Use the `VERIFY_TOKEN` that you created in `.env` file and subscribe your webhook server's URL for WhatsApp webhooks in your developer page's _Configuration_ tab. Make sure to subscribe to the messages field. Note that the app listens to webhooks on the `/webhook` endpoint.

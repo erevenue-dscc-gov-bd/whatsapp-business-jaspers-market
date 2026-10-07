@@ -33,6 +33,35 @@ src/redis-server --port 6379 --save '' --appendonly no
 
 Point `REDIS_HOST` / `REDIS_PORT` in `.env` at that instance if the defaults differ.
 
+## Exposing the webhook
+
+`npm run tunnel` (see the README) writes `WEBHOOK_CALLBACK_URL` to `.env`, and
+`npm run webhook -- subscribe` registers it with the WhatsApp Business Account
+using `override_callback_uri`. Verify the whole chain with `npm run doctor`.
+
+In a hosted sandbox (for example an E2B environment), ngrok and cloudflared
+cannot reach their control planes, so the only public route is the platform's
+preview URL: `https://<PORT>-<E2B_SANDBOX_ID>.e2b.app`. Use
+`npm run tunnel -- --preview` (this is also the automatic fallback). That URL is
+reachable by Meta and by your browser, but not from inside the sandbox itself, so
+`npm run doctor` reports it as "not probeable from inside" rather than a failure.
+
+## Ephemeral environments
+
+Container resets wipe `.env`, `node_modules/`, and anything outside the
+repository root (including the Redis build). After a reset:
+
+```bash
+npm install
+# rebuild and start Redis (above), then
+cp .sample.env .env   # re-add credentials: they are never committed
+node app.js
+```
+
+Keep real credentials out of Git. `.env` is gitignored and, in managed
+sandboxes, may also be scrubbed between sessions, so expect to re-enter tokens
+after a reset rather than relying on them persisting.
+
 ## Verifying without a live WhatsApp number
 
 `config.checkEnvVariables()` rejects blank/placeholder media IDs, so use any

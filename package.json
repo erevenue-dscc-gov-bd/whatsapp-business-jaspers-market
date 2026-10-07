@@ -20,7 +20,11 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "doctor": "node scripts/doctor.js",
+    "webhook": "node scripts/webhook.js",
+    "media": "node scripts/media.js",
+    "tunnel": "bash scripts/tunnel.sh"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
